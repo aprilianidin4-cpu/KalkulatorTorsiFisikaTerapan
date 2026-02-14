@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Keseimbangan Torsi - Truk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #5a67d8;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .animation-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #truckCanvas {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item strong {
+            color: #667eea;
+        }
+
+        .formula {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .formula-box {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #0288d1;
+            font-family: 'Courier New', monospace;
+        }
+
+        .step {
+            background: #e7f3ff;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .highlight {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #28a745;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .physics-section {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px solid #667eea;
+        }
+
+        .equation {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .variable-definition {
+            background: white;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 3px solid #9c27b0;
+        }
+
+        @media (max-width: 968px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .explanation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 20px;
+        }
+
+        .theory-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 20px;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚚 Kalkulator Keseimbangan Torsi</h1>
+        
+        <div class="content-wrapper">
+            <!-- Input Section -->
+            <div class="card">
+                <h2>📊 Input Data</h2>
+                
+                <div class="input-group">
+                    <label>Massa Truk (ton):</label>
+                    <input type="number" id="massaTruk" value="1.5" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label>Jarak Roda Depan ke Roda Belakang (m):</label>
+                    <input type="number" id="jarakTotal" value="4" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label>Jarak Pusat Massa dari Roda Depan (m):</label>
+                    <input type="number" id="jarakPusatMassa" value="2.5" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label>Berat Truk (N) - Opsional (kosongkan untuk otomatis):</label>
+                    <input type="number" id="beratTruk" placeholder="Otomatis: W = m × g">
+                </div>
+
+                <div class="input-group">
+                    <label>Gravitasi (m/s²):</label>
+                    <input type="number" id="gravitasi" value="10" step="0.1">
+                </div>
+
+                <button onclick="hitungGaya()">🔍 Hitung Gaya Roda Belakang</button>
+
+                <div id="hasilPerhitungan" style="display:none;" class="result-box">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Hasil Perhitungan:</h3>
+                    <div id="hasilDetail"></div>
+                </div>
+            </div>
+
+            <!-- Animation Section -->
+            <div class="card">
+                <h2>🎨 Visualisasi Animasi</h2>
+                <div class="animation-container">
+                    <canvas id="truckCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physics Theory Card -->
+        <div class="theory-card">
+            <h2>📐 Dasar Teori Fisika</h2>
+            
+            <div class="physics-section">
+                <h3>1. Definisi Torsi (Momen Gaya)</h3>
+                <p>Torsi adalah ukuran kecenderungan suatu gaya untuk memutar benda terhadap suatu titik poros atau sumbu rotasi.</p>
+                
+                <div class="equation">
+                    τ = F × r × sin θ
+                </div>
+                
+                <p style="margin-top: 10px;">Untuk gaya tegak lurus lengan (θ = 90°, sin 90° = 1):</p>
+                <div class="equation">
+                    τ = F × d
+                </div>
+                
+                <div class="variable-definition">
+                    <strong>τ (tau)</strong> = Torsi atau momen gaya (N·m)
+                </div>
+                <div class="variable-definition">
+                    <strong>F</strong> = Gaya yang bekerja (N)
+                </div>
+                <div class="variable-definition">
+                    <strong>d atau r</strong> = Lengan momen / jarak tegak lurus dari poros ke garis kerja gaya (m)
+                </div>
+                <div class="variable-definition">
+                    <strong>θ (theta)</strong> = Sudut antara vektor gaya dan vektor lengan
+                </div>
+            </div>
+
+            <div class="physics-section">
+                <h3>2. Syarat Keseimbangan Benda Tegar</h3>
+                <p>Agar benda tegar berada dalam keseimbangan, harus memenuhi dua syarat:</p>
+                
+                <h4 style="margin-top: 15px; color: #2c3e50;">A. Keseimbangan Translasi:</h4>
+                <div class="equation">
+                    ΣF = 0
+                </div>
+                <p style="text-align: center; margin-top: 5px;">Jumlah semua gaya yang bekerja sama dengan nol</p>
+                
+                <div class="formula-box" style="margin-top: 15px;">
+                    ΣF<sub>x</sub> = 0  (arah horizontal)<br>
+                    ΣF<sub>y</sub> = 0  (arah vertikal)
+                </div>
+                
+                <h4 style="margin-top: 20px; color: #2c3e50;">B. Keseimbangan Rotasi:</h4>
+                <div class="equation">
+                    Στ = 0
+                </div>
+                <p style="text-align: center; margin-top: 5px;">Jumlah semua torsi yang bekerja sama dengan nol</p>
+                
+                <div class="formula-box" style="margin-top: 15px;">
+                    Στ<sub>searah jarum jam</sub> = Στ<sub>berlawanan jarum jam</sub>
+                </div>
+            </div>
+
+            <div class="physics-section">
+                <h3>3. Berat dan Gaya Gravitasi</h3>
+                <div class="equation">
+                    W = m × g
+                </div>
+                
+                <div class="variable-definition">
+                    <strong>W</strong> = Berat benda (N = Newton)
+                </div>
+                <div class="variable-definition">
+                    <strong>m</strong> = Massa benda (kg)
+                </div>
+                <div class="variable-definition">
+                    <strong>g</strong> = Percepatan gravitasi bumi (≈ 9,8 m/s² atau dibulatkan 10 m/s²)
+                </div>
+            </div>
+
+            <div class="physics-section">
+                <h3>4. Pusat Massa (Center of Mass)</h3>
+                <p>Pusat massa adalah titik dimana seluruh massa benda dapat dianggap terpusat. Pada truk, pusat massa terletak di suatu titik tertentu yang bergantung pada distribusi massa komponen-komponen truk.</p>
+                
+                <div class="formula-box" style="margin-top: 15px;">
+                    <strong>Sifat Pusat Massa:</strong><br>
+                    • Berat total benda bekerja pada pusat massa<br>
+                    • Torsi akibat berat dihitung dari pusat massa<br>
+                    • Jarak pusat massa mempengaruhi distribusi gaya pada tumpuan
+                </div>
+            </div>
+
+            <div class="physics-section">
+                <h3>5. Aplikasi pada Kasus Truk</h3>
+                <p><strong>Sistem:</strong> Truk dengan dua tumpuan (roda depan dan roda belakang)</p>
+                
+                <div class="formula-box" style="margin-top: 15px;">
+                    <strong>Gaya-gaya yang bekerja:</strong><br>
+                    • W = Berat truk (vertikal ke bawah) di pusat massa<br>
+                    • F<sub>depan</sub> = Gaya normal roda depan (vertikal ke atas)<br>
+                    • F<sub>belakang</sub> = Gaya normal roda belakang (vertikal ke atas)
+                </div>
+                
+                <h4 style="margin-top: 15px; color: #2c3e50;">Syarat Keseimbangan Translasi:</h4>
+                <div class="equation">
+                    F<sub>depan</sub> + F<sub>belakang</sub> = W
+                </div>
+                
+                <h4 style="margin-top: 15px; color: #2c3e50;">Syarat Keseimbangan Rotasi (Poros di Roda Depan):</h4>
+                <div class="equation">
+                    F<sub>belakang</sub> × d<sub>total</sub> = W × d<sub>pusat massa</sub>
+                </div>
+                
+                <div class="variable-definition">
+                    <strong>d<sub>total</sub></strong> = Jarak antara roda depan dan roda belakang (m)
+                </div>
+                <div class="variable-definition">
+                    <strong>d<sub>pusat massa</sub></strong> = Jarak pusat massa dari roda depan (m)
+                </div>
+            </div>
+        </div>
+
+        <!-- Explanation Section -->
+        <div class="explanation-card">
+            <h2>📚 Langkah-Langkah Penyelesaian Soal</h2>
+            
+            <div class="step">
+                <strong>Langkah 1: Pahami Konsep Keseimbangan Torsi</strong>
+                <p>Ketika truk dalam keseimbangan statis, tidak ada gerakan translasi maupun rotasi. Ini berarti:</p>
+                <ul>
+                    <li>Jumlah gaya vertikal = 0 (tidak ada percepatan naik/turun)</li>
+                    <li>Jumlah torsi = 0 (tidak ada percepatan rotasi)</li>
+                </ul>
+            </div>
+
+            <div class="formula">
+                <strong>Rumus Dasar:</strong><br>
+                τ = F × d<br>
+                <br>
+                <strong>Syarat Keseimbangan Rotasi:</strong><br>
+                Στ = 0<br>
+                atau<br>
+                Torsi searah jarum jam = Torsi berlawanan jarum jam
+            </div>
+
+            <div class="step">
+                <strong>Langkah 2: Tentukan Titik Poros (Pivot Point)</strong>
+                <p>Kita bebas memilih titik poros, tetapi untuk memudahkan perhitungan, pilih salah satu tumpuan:</p>
+                <ul>
+                    <li><strong>Pilihan: Roda Depan sebagai Poros</strong></li>
+                    <li>Keuntungan: Gaya pada roda depan (F<sub>depan</sub>) tidak menghasilkan torsi karena jaraknya = 0</li>
+                    <li>Sehingga kita hanya perlu menghitung torsi dari W dan F<sub>belakang</sub></li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <strong>Langkah 3: Identifikasi Gaya-Gaya yang Bekerja</strong>
+                <ul>
+                    <li><strong>W (Berat Truk)</strong> = m × g, arah vertikal ke bawah, bekerja di pusat massa</li>
+                    <li><strong>F<sub>depan</sub> (Gaya Normal Roda Depan)</strong> = vertikal ke atas, di titik poros</li>
+                    <li><strong>F<sub>belakang</sub> (Gaya Normal Roda Belakang)</strong> = vertikal ke atas, yang akan dicari</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <strong>Langkah 4: Tentukan Lengan Momen (Moment Arm)</strong>
+                <p>Lengan momen adalah jarak tegak lurus dari poros ke garis kerja gaya:</p>
+                <ul>
+                    <li>Lengan momen W: d<sub>1</sub> = jarak pusat massa dari roda depan</li>
+                    <li>Lengan momen F<sub>belakang</sub>: d<sub>2</sub> = jarak roda belakang dari roda depan</li>
+                    <li>Lengan momen F<sub>depan</sub>: d = 0 (berada di poros)</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <strong>Langkah 5: Tentukan Arah Rotasi</strong>
+                <ul>
+                    <li><strong>Berat W:</strong> Cenderung memutar truk <strong>searah jarum jam</strong> terhadap roda depan</li>
+                    <li><strong>Gaya F<sub>belakang</sub>:</strong> Cenderung memutar truk <strong>berlawanan jarum jam</strong> terhadap roda depan</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <strong>Langkah 6: Terapkan Syarat Keseimbangan Rotasi</strong>
+                <p>Jumlah torsi = 0, atau torsi searah jarum jam = torsi berlawanan jarum jam:</p>
+            </div>
+
+            <div class="formula">
+                <strong>Persamaan Keseimbangan:</strong><br>
+                Στ = 0<br>
+                <br>
+                τ<sub>berlawanan jarum jam</sub> = τ<sub>searah jarum jam</sub><br>
+                <br>
+                F<sub>belakang</sub> × d<sub>total</sub> = W × d<sub>pusat massa</sub>
+            </div>
+
+            <div class="step">
+                <strong>Langkah 7: Substitusi Nilai dan Hitung</strong>
+                <p>Masukkan nilai-nilai yang diketahui ke dalam persamaan:</p>
+            </div>
+
+            <div class="formula">
+                <strong>Perhitungan untuk Soal Contoh:</strong><br>
+                <br>
+                Diketahui:<br>
+                • m = 1,5 ton = 1.500 kg<br>
+                • g = 10 m/s²<br>
+                • d<sub>total</sub> = 4 m<br>
+                • d<sub>pusat massa</sub> = 2,5 m dari roda depan<br>
+                <br>
+                Langkah 1: Hitung berat<br>
+                W = m × g = 1.500 × 10 = 15.000 N<br>
+                <br>
+                Langkah 2: Terapkan keseimbangan torsi<br>
+                F<sub>belakang</sub> × 4 = 15.000 × 2,5<br>
+                F<sub>belakang</sub> × 4 = 37.500<br>
+                F<sub>belakang</sub> = 37.500 / 4<br>
+                <strong>F<sub>belakang</sub> = 9.375 N</strong>
+            </div>
+
+            <div class="step">
+                <strong>Langkah 8: Verifikasi dengan Keseimbangan Translasi (Opsional)</strong>
+                <p>Untuk memastikan jawaban benar, kita bisa menghitung F<sub>depan</sub> dan memeriksa:</p>
+            </div>
+
+            <div class="formula">
+                <strong>Verifikasi:</strong><br>
+                ΣF<sub>y</sub> = 0<br>
+                F<sub>depan</sub> + F<sub>belakang</sub> = W<br>
+                F<sub>depan</sub> + 9.375 = 15.000<br>
+                F<sub>depan</sub> = 15.000 - 9.375<br>
+                F<sub>depan</sub> = 5.625 N<br>
+                <br>
+                ✓ Total gaya ke atas = 5.625 + 9.375 = 15.000 N<br>
+                ✓ Sama dengan berat truk = 15.000 N<br>
+                ✓ Jawaban benar!
+            </div>
+
+            <div class="highlight">
+                ✅ Kesimpulan: Gaya yang dipikul oleh roda belakang = 9.375 N<br>
+                ✅ Gaya yang dipikul oleh roda depan = 5.625 N
+            </div>
+
+            <div class="physics-section" style="margin-top: 20px;">
+                <h3>💡 Catatan Penting</h3>
+                <ul>
+                    <li>Semakin jauh pusat massa dari roda depan, semakin besar beban pada roda belakang</li>
+                    <li>Jika pusat massa tepat di tengah (2 m), maka F<sub>depan</sub> = F<sub>belakang</sub> = 7.500 N</li>
+                    <li>Dalam kasus ini, pusat massa lebih dekat ke roda belakang (2,5 m dari depan), sehingga roda belakang memikul beban lebih besar</li>
+                    <li>Prinsip ini penting dalam desain kendaraan untuk distribusi beban yang optimal</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('truckCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let animationData = {
+            massaTruk: 1.5,
+            jarakTotal: 4,
+            jarakPusatMassa: 2.5,
+            berat: 15000,
+            gayaRodaBelakang: 9375,
+            gayaRodaDepan: 5625
+        };
+
+        function drawTruck() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const scale = Math.min(canvas.width / 600, canvas.height / 400);
+            const offsetX = (canvas.width - 500 * scale) / 2;
+            const offsetY = canvas.height / 2;
+
+            // Ground line
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, offsetY + 80 * scale);
+            ctx.lineTo(canvas.width, offsetY + 80 * scale);
+            ctx.stroke();
+
+            // Truck body (simplified)
+            ctx.fillStyle = '#4A90E2';
+            ctx.fillRect(offsetX + 100 * scale, offsetY - 50 * scale, 300 * scale, 80 * scale);
+            
+            // Truck cabin
+            ctx.fillStyle = '#357ABD';
+            ctx.fillRect(offsetX + 80 * scale, offsetY - 80 * scale, 100 * scale, 80 * scale);
+
+            // Windows
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(offsetX + 90 * scale, offsetY - 70 * scale, 35 * scale, 30 * scale);
+            ctx.fillRect(offsetX + 135 * scale, offsetY - 70 * scale, 35 * scale, 30 * scale);
+
+            // Calculate wheel positions based on actual distances
+            const pixelsPerMeter = 250 * scale / animationData.jarakTotal;
+            const rodaDepanX = offsetX + 150 * scale;
+            const rodaBelakangX = rodaDepanX + (animationData.jarakTotal * pixelsPerMeter);
+            const wheelY = offsetY + 30 * scale;
+
+            // Wheels
+            function drawWheel(x, y) {
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(x, y, 25 * scale, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#666';
+                ctx.beginPath();
+                ctx.arc(x, y, 12 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawWheel(rodaDepanX, wheelY);
+            drawWheel(rodaBelakangX, wheelY);
+
+            // Center of mass position
+            const pusatMassaX = rodaDepanX + (animationData.jarakPusatMassa * pixelsPerMeter);
+
+            // Draw center of mass
+            ctx.fillStyle = '#FF6B6B';
+            ctx.beginPath();
+            ctx.arc(pusatMassaX, offsetY - 10 * scale, 8 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Center of mass label
+            ctx.fillStyle = '#FF6B6B';
+            ctx.font = `${10 * scale}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('Pusat Massa', pusatMassaX, offsetY - 20 * scale);
+
+            // Weight arrow (downward)
+            ctx.strokeStyle = '#FF6B6B';
+            ctx.fillStyle = '#FF6B6B';
+            ctx.lineWidth = 3 * scale;
+            
+            const arrowLength = 60 * scale;
+            ctx.beginPath();
+            ctx.moveTo(pusatMassaX, offsetY - 10 * scale);
+            ctx.lineTo(pusatMassaX, offsetY - 10 * scale + arrowLength);
+            ctx.stroke();
+            
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(pusatMassaX, offsetY - 10 * scale + arrowLength);
+            ctx.lineTo(pusatMassaX - 8 * scale, offsetY - 10 * scale + arrowLength - 15 * scale);
+            ctx.lineTo(pusatMassaX + 8 * scale, offsetY - 10 * scale + arrowLength - 15 * scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Force arrow at rear wheel (upward)
+            ctx.strokeStyle = '#4CAF50';
+            ctx.fillStyle = '#4CAF50';
+            
+            ctx.beginPath();
+            ctx.moveTo(rodaBelakangX, wheelY);
+            ctx.lineTo(rodaBelakangX, wheelY - arrowLength);
+            ctx.stroke();
+            
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(rodaBelakangX, wheelY - arrowLength);
+            ctx.lineTo(rodaBelakangX - 8 * scale, wheelY - arrowLength + 15 * scale);
+            ctx.lineTo(rodaBelakangX + 8 * scale, wheelY - arrowLength + 15 * scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Force arrow at front wheel (upward)
+            ctx.strokeStyle = '#FF9800';
+            ctx.fillStyle = '#FF9800';
+            
+            const frontArrowLength = arrowLength * 0.6; // Smaller arrow for front wheel
+            ctx.beginPath();
+            ctx.moveTo(rodaDepanX, wheelY);
+            ctx.lineTo(rodaDepanX, wheelY - frontArrowLength);
+            ctx.stroke();
+            
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(rodaDepanX, wheelY - frontArrowLength);
+            ctx.lineTo(rodaDepanX - 8 * scale, wheelY - frontArrowLength + 15 * scale);
+            ctx.lineTo(rodaDepanX + 8 * scale, wheelY - frontArrowLength + 15 * scale);
+            ctx.closePath();
+            ctx.fill();
+
+            // Labels
+            ctx.font = `${14 * scale}px Arial`;
+            ctx.textAlign = 'center';
+            
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fillText(`W = ${animationData.berat} N`, pusatMassaX, offsetY + 70 * scale);
+            
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillText(`F₂ = ${animationData.gayaRodaBelakang} N`, rodaBelakangX, wheelY - 75 * scale);
+            
+            ctx.fillStyle = '#FF9800';
+            ctx.fillText(`F₁ = ${animationData.gayaRodaDepan} N`, rodaDepanX, wheelY - 55 * scale);
+            
+            ctx.fillStyle = '#000';
+            ctx.font = `${12 * scale}px Arial`;
+            ctx.fillText('Poros', rodaDepanX, wheelY + 50 * scale);
+
+            // Distance markers
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            
+            // Distance from front to center of mass
+            const markerY = offsetY + 100 * scale;
+            ctx.beginPath();
+            ctx.moveTo(rodaDepanX, markerY);
+            ctx.lineTo(pusatMassaX, markerY);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#666';
+            ctx.font = `${12 * scale}px Arial`;
+            ctx.fillText(`d₁ = ${animationData.jarakPusatMassa} m`, (rodaDepanX + pusatMassaX) / 2, markerY + 20 * scale);
+
+            // Distance from center of mass to rear
+            ctx.beginPath();
+            ctx.moveTo(pusatMassaX, markerY);
+            ctx.lineTo(rodaBelakangX, markerY);
+            ctx.stroke();
+            
+            const sisaJarak = (animationData.jarakTotal - animationData.jarakPusatMassa).toFixed(1);
+            ctx.fillText(`${sisaJarak} m`, (pusatMassaX + rodaBelakangX) / 2, markerY + 20 * scale);
+
+            // Total distance
+            ctx.beginPath();
+            ctx.moveTo(rodaDepanX, markerY + 30 * scale);
+            ctx.lineTo(rodaBelakangX, markerY + 30 * scale);
+            ctx.stroke();
+            
+            ctx.fillText(`d₂ = ${animationData.jarakTotal} m`, (rodaDepanX + rodaBelakangX) / 2, markerY + 50 * scale);
+            
+            ctx.setLineDash([]);
+        }
+
+        function hitungGaya() {
+            const massaTruk = parseFloat(document.getElementById('massaTruk').value);
+            const jarakTotal = parseFloat(document.getElementById('jarakTotal').value);
+            const jarakPusatMassa = parseFloat(document.getElementById('jarakPusatMassa').value);
+            const gravitasi = parseFloat(document.getElementById('gravitasi').value);
+            const beratManual = document.getElementById('beratTruk').value;
+
+            // Convert massa to kg (input in ton)
+            const massaKg = massaTruk * 1000;
+            
+            // Calculate weight
+            const berat = beratManual ? parseFloat(beratManual) : massaKg * gravitasi;
+
+            // Calculate force on rear wheel using torque equilibrium
+            // Taking front wheel as pivot: F_belakang × jarakTotal = W × jarakPusatMassa
+            const gayaRodaBelakang = (berat * jarakPusatMassa) / jarakTotal;
+            
+            // Calculate force on front wheel using force equilibrium
+            const gayaRodaDepan = berat - gayaRodaBelakang;
+
+            // Update animation data
+            animationData = {
+                massaTruk,
+                jarakTotal,
+                jarakPusatMassa,
+                berat,
+                gayaRodaBelakang: Math.round(gayaRodaBelakang),
+                gayaRodaDepan: Math.round(gayaRodaDepan)
+            };
+
+            // Display results
+            const hasilDiv = document.getElementById('hasilDetail');
+            hasilDiv.innerHTML = `
+                <div class="result-item">
+                    <strong>Massa Truk:</strong> ${massaTruk} ton = ${massaKg} kg
+                </div>
+                <div class="result-item">
+                    <strong>Percepatan Gravitasi:</strong> ${gravitasi} m/s²
+                </div>
+                <div class="result-item">
+                    <strong>Berat Truk (W):</strong> ${berat.toLocaleString('id-ID')} N
+                </div>
+                <div class="result-item">
+                    <strong>Jarak Roda Depan ke Belakang (d₂):</strong> ${jarakTotal} m
+                </div>
+                <div class="result-item">
+                    <strong>Jarak Pusat Massa dari Roda Depan (d₁):</strong> ${jarakPusatMassa} m
+                </div>
+                
+                <div class="formula" style="margin-top: 15px;">
+                    <strong>📐 Perhitungan Berat:</strong><br>
+                    W = m × g<br>
+                    W = ${massaKg} kg × ${gravitasi} m/s²<br>
+                    W = ${berat.toLocaleString('id-ID')} N
+                </div>
+                
+                <div class="formula">
+                    <strong>🔄 Keseimbangan Torsi (Poros di Roda Depan):</strong><br>
+                    Στ = 0<br>
+                    τ_belakang = τ_berat<br>
+                    F₂ × d₂ = W × d₁<br>
+                    F₂ × ${jarakTotal} = ${berat.toLocaleString('id-ID')} × ${jarakPusatMassa}<br>
+                    F₂ × ${jarakTotal} = ${(berat * jarakPusatMassa).toLocaleString('id-ID')}<br>
+                    F₂ = ${(berat * jarakPusatMassa).toLocaleString('id-ID')} / ${jarakTotal}<br>
+                    <strong>F₂ = ${gayaRodaBelakang.toLocaleString('id-ID')} N</strong>
+                </div>
+                
+                <div class="formula">
+                    <strong>⚖️ Keseimbangan Translasi (Verifikasi):</strong><br>
+                    ΣF_y = 0<br>
+                    F₁ + F₂ = W<br>
+                    F₁ + ${gayaRodaBelakang.toLocaleString('id-ID')} = ${berat.toLocaleString('id-ID')}<br>
+                    F₁ = ${berat.toLocaleString('id-ID')} - ${gayaRodaBelakang.toLocaleString('id-ID')}<br>
+                    <strong>F₁ = ${gayaRodaDepan.toLocaleString('id-ID')} N</strong>
+                </div>
+                
+                <div class="highlight">
+                    ✅ <strong>Gaya Roda Belakang (F₂) = ${gayaRodaBelakang.toLocaleString('id-ID')} Newton</strong><br>
+                    ✅ <strong>Gaya Roda Depan (F₁) = ${gayaRodaDepan.toLocaleString('id-ID')} Newton</strong><br>
+                    <br>
+                    Verifikasi: ${gayaRodaDepan.toLocaleString('id-ID')} + ${gayaRodaBelakang.toLocaleString('id-ID')} = ${berat.toLocaleString('id-ID')} N ✓
+                </div>
+            `;
+
+            document.getElementById('hasilPerhitungan').style.display = 'block';
+            
+            // Redraw animation
+            drawTruck();
+        }
+
+        // Initial draw
+        drawTruck();
+        
+        // Calculate with default values
+        hitungGaya();
+    </script>
+</body>
+</html>
